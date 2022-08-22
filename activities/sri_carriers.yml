@@ -4,7 +4,7 @@ job:
 source:
   endpoint: "blobguzzlecommon"
   properties:
-    source_file_pattern: "airlinesdemo/carriers.csv"
+    source_file_pattern: "carriers.csv"
     format: "delimited"
     charset: "UTF-8"
     partial_load: false
