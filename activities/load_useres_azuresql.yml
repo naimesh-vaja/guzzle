@@ -1,0 +1,33 @@
+version: 1
+job:
+  type: "ingestion"
+source:
+  endpoint: "azuresql1"
+  properties:
+    query: "select batch_id ,business_date,job_instance_id,name from job_info"
+    format_properties:
+      clean_column_name: false
+  incremental_load:
+    watermarking_columns:
+    - name: "job_instance_id"
+schema:
+  schema_derivation_strategy: "source"
+  strict_schema_check: true
+  discard: true
+  columns:
+  - name: "job_id"
+    transform_sql:
+      value: "${job_instance_id}"
+    nullable:
+      value: true
+target:
+  endpoint: "blobguzzlecommon"
+  properties:
+    format: "json"
+    charset: "UTF-8"
+    path: "job_info_tgt"
+    preserve_hierarchy: false
+    format_properties:
+      merge_file: false
+    file_name: "all_usres.csv"
+folder: "/archive"

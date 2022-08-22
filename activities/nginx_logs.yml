@@ -1,0 +1,35 @@
+version: 1
+job:
+  type: "ingestion"
+  tags:
+  - "nfight"
+  - "logs"
+source:
+  endpoint: "blobguzzlecommon"
+  properties:
+    source_file_pattern: "nginx_logs/*.log"
+    format: "text"
+    charset: "UTF-8"
+    partial_load: false
+    format_properties:
+      clean_column_name: false
+      parser:
+        pattern: "%{IPORHOST:remote_addr} - %{USERNAME:remote_user} \\\\[%{HTTPDATE:time_local}\\\\] \\\\\"%{DATA:request}\\\\\" %{INT:status} %{NUMBER:bytes_sent} \\\\\"%{DATA:http_referer}\\\\\" \\\\\"%{DATA:http_user_agent}\\\\\""
+        type: "grok"
+schema:
+  schema_derivation_strategy: "source"
+  strict_schema_check: true
+  discard: true
+  columns:
+  - name: "log_file_name"
+    transform_sql:
+      value: "src_filename"
+    nullable:
+      value: true
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "nginx_logs"
+    auto_create_table: true
+  operation: "append"
+folder: "/logs"

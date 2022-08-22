@@ -1,0 +1,61 @@
+version: 1
+job:
+  type: "ingestion"
+source:
+  endpoint: "blobguzzlecommon"
+  properties:
+    source_file_pattern: "airlinesdemo/*.bz2"
+    format: "delimited"
+    charset: "UTF-8"
+    partial_load: false
+    format_properties:
+      column_delimiter: ","
+      quote_delimiter: "\""
+      escape_char: "\\\\"
+      contains_header: true
+      infer_schema: false
+      clean_column_name: false
+      trim_white_space: "none"
+schema:
+  schema_derivation_strategy: "source"
+  strict_schema_check: true
+  discard: true
+  columns:
+  - name: "TailNum"
+    nullable:
+      value: false
+  - name: "ArrTime"
+    data_type:
+      value: "int"
+    nullable:
+      value: true
+    validate_sql:
+      value: "ArrTime < 2400"
+  - name: "arr_delay_flag"
+    transform_sql:
+      value: "case when arrDelay >30 then 'Y' else 'N' end"
+    data_type:
+      value: "string"
+    nullable:
+      value: true
+    partition_column: true
+  - name: "distance_in_km"
+    transform_sql:
+      value: "Distance * 1.6"
+    nullable:
+      value: true
+  - name: "flight_date"
+    transform_sql:
+      value: "concat(Year,'-',Month,'-',DayofMonth)"
+    data_type:
+      value: "timestamp"
+    nullable:
+      value: true
+    partition_column: true
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "sri_flights_v2"
+    auto_create_table: true
+  operation: "overwrite"
+folder: "/archive"

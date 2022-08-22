@@ -1,0 +1,31 @@
+version: 1
+job:
+  type: "recon"
+source:
+  endpoint: "deltastore"
+  properties:
+    table: "default.stg_flights_316"
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "default.f_flights"
+recon:
+  primary_keys:
+  - "Dest"
+  grouping_columns:
+  - "month"
+  - "origin"
+  execution_site: "source"
+  partial_match: true
+  recon_metrics:
+    row counts:
+      aggregation: "count(1)"
+      detail_check_enabled: true
+      source_aggregation: "count(1)"
+      target_aggregation: "count(1)"
+    sum of distance:
+      aggregation: "sum(cast(distance as double))"
+      detail_check_enabled: true
+      source_aggregation: "sum(cast(distance as double))"
+      target_aggregation: "sum(cast(distance as double))"
+folder: "/archive"

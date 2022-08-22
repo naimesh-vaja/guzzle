@@ -1,0 +1,79 @@
+version: 1
+job:
+  type: "processing"
+  tags:
+  - "test"
+source:
+  endpoint: "deltastore"
+  properties:
+    sql: |-
+      select
+        f.*,
+        origin.airport_id origin_airport_id,
+        origin.airport origin_airport_name,
+        origin.city origin_airport_city,
+        origin.state origin_airports_state,
+        dest.airport_id dest_airport_id,
+        dest.airport dest_airport_name,
+        dest.city dest_airport_city,
+        dest.state dest_airports_state,
+        c.Description carrier_description
+      from
+        sri_flights f
+        join d_airports origin on f.origin = origin.iata
+        join d_airports dest on f.dest = dest.iata
+        join d_carriers c on f.UniqueCarrier = c.code and c.is_current_record = 'Y'
+    pre_sql:
+    - |-
+      CREATE TABLE if not exists  default.`f_flights` (
+        `Year` STRING,
+        `Month` STRING,
+        `DayofMonth` STRING,
+        `DayOfWeek` STRING,
+        `DepTime` STRING,
+        `CRSDepTime` STRING,
+        `ArrTime` INT,
+        `CRSArrTime` STRING,
+        `UniqueCarrier` STRING,
+        `FlightNum` STRING,
+        `TailNum` STRING,
+        `ActualElapsedTime` STRING,
+        `CRSElapsedTime` STRING,
+        `AirTime` STRING,
+        `ArrDelay` STRING,
+        `DepDelay` STRING,
+        `Origin` STRING,
+        `Dest` STRING,
+        `Distance` STRING,
+        `TaxiIn` STRING,
+        `TaxiOut` STRING,
+        `Cancelled` STRING,
+        `CancellationCode` STRING,
+        `Diverted` STRING,
+        `CarrierDelay` STRING,
+        `WeatherDelay` STRING,
+        `NASDelay` STRING,
+        `SecurityDelay` STRING,
+        `LateAircraftDelay` STRING,
+        `origin_aiport_id` BIGINT,
+        `origin_airport_name` STRING,
+        `origin_airport_city` STRING,
+        `origin_airports_state` STRING,
+        `dest_aiport_id` BIGINT,
+        `dest_airport_name` STRING,
+        `dest_airport_city` STRING,
+        `dest_airports_state` STRING,
+        carrier_description   string,
+        last_updated_ts timestamp
+      )
+      USING delta
+target:
+  endpoint: "deltastore"
+  operation: "overwrite"
+  incremental: false
+  soft_delete: false
+  properties:
+    table: "f_flights"
+  additional_columns:
+  - name: "last_updated_ts"
+    framework_column: "w_refresh_ts"

@@ -1,0 +1,17 @@
+version: 1
+job:
+  type: "constraint_checks"
+source:
+  endpoint: "deltastore"
+  primary_keys:
+  - "plane_id"
+  grouping_columns:
+  - "manufacturer"
+  - "year"
+  properties:
+    table: "d_planes"
+validation_rules:
+  Issue date less than 1995:
+    sql: "TO_DATE(CAST(UNIX_TIMESTAMP(issue_date, 'MM/dd/yyyy') AS timestamp))  >= cast('1995-01-01' as date)"
+  Manufacturer is blank:
+    sql: "manufacturer is  not null"

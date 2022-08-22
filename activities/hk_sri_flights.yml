@@ -1,0 +1,22 @@
+version: 1
+job:
+  type: "housekeeping"
+housekeeping:
+  endpoint: "deltastore"
+  properties:
+    table: "sri_flights_v2"
+  housekeeping_column: "flight_date"
+  operation: "delete"
+  reference_point:
+    reference_type: "max_value"
+  retention_strategies:
+  - partitions:
+    - arr_delay_flag: "Y"
+    retention_strategy: "36500d, *w, *m, *q, *y"
+    day_of_week: 1
+    strict_retention_period_end: false
+  - partitions: []
+    retention_strategy: "365d, *w, *m, *q, *y"
+    day_of_week: 1
+    strict_retention_period_end: false
+    strict_retention_grain: []

@@ -1,0 +1,39 @@
+version: 1
+job:
+  type: "ingestion"
+  tags:
+  - "airlinedemo"
+source:
+  endpoint: "deltastore"
+  properties:
+    query: |-
+      select
+        f.*,
+        nvl(origin.country,'x') <> nvl(dest.country,'x') is_international ,
+        DayOfWeek in (6,7) weekend,
+        <% for (item in [ "30", "60", "120"]) { %>
+        ArrDelay >  <%=item%>   arr_delay_<%= item %>min,
+        <% } %>
+        current_timestamp ts
+      from
+        f_flights f
+        left join d_airports origin on f.origin_aiport_id = origin.airport_id
+        left join d_airports dest on f.dest_aiport_id = dest.airport_id
+      --   limit 10
+    format_properties:
+      clean_column_name: false
+schema:
+  schema_derivation_strategy: "source"
+  strict_schema_check: true
+  discard: true
+  columns:
+  - name: "year"
+    nullable:
+      value: false
+    partition_column: true
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "flight_ml_dataset"
+    auto_create_table: true
+  operation: "overwrite"

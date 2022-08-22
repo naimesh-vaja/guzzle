@@ -1,0 +1,58 @@
+version: 1
+job:
+  type: "processing"
+source:
+  endpoint: "deltastore"
+  properties:
+    table: "sri_planes"
+    pre_sql:
+    - |-
+      CREATE TABLE if not exists `default`.`d_planes` (
+        `plane_id` bigint,
+        `tailnum` STRING,
+        `type` STRING,
+        `manufacturer` STRING,
+        `issue_date` STRING,
+        `model` STRING,
+        `status` STRING,
+        `aircraft_type` STRING,
+        `engine_type` STRING,
+        `year` STRING,
+        is_current_record string,
+        created_ts timestamp,
+        last_update_ts timestamp,
+        eff_start_ts timestamp,
+        eff_end_ts timestamp
+        )
+      USING delta
+target:
+  endpoint: "deltastore"
+  operation: "effective_date_merge"
+  incremental: false
+  soft_delete: false
+  properties:
+    table: "d_planes"
+    history_columns:
+    - "type"
+    - "manufacturer"
+    - "issue_date"
+    - "model"
+    - "status"
+    - "year"
+    - "aircraft_type"
+    - "engine_type"
+  primary_key_columns:
+  - "tailnum"
+  additional_columns:
+  - name: "plane_id"
+    framework_column: "w_sequence_key"
+  - name: "created_ts"
+    framework_column: "w_created_ts"
+  - name: "last_update_ts"
+    framework_column: "w_refresh_ts"
+  - name: "eff_start_ts"
+    framework_column: "w_eff_start_date_ts"
+  - name: "eff_end_ts"
+    framework_column: "w_eff_end_date_ts"
+  - name: "is_current_record"
+    framework_column: "w_current_record_flag"

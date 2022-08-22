@@ -1,0 +1,28 @@
+version: 1
+job:
+  type: "recon"
+source:
+  endpoint: "deltastore"
+  properties:
+    table: "srI_flights"
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "f_flights"
+recon:
+  primary_keys:
+  - "UniqueCarrier"
+  - "FlightNum"
+  - "TailNum"
+  grouping_columns:
+  - "origin"
+  - "dest"
+  execution_site: "source"
+  recon_metrics:
+    count check:
+      source_aggregation: "count(1)"
+      target_aggregation: "count(1)"
+    sum of distance:
+      detail_check_enabled: true
+      source_aggregation: "sum(distance)"
+      target_aggregation: "sum(distance)"

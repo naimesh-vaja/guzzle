@@ -1,0 +1,37 @@
+version: 1
+job:
+  type: "processing"
+source:
+  endpoint: "deltastore"
+  properties:
+    table: "sri_airports"
+    pre_sql:
+    - |-
+      CREATE TABLE  if not exists  `default`.`d_airports` (
+        `airport_id` bigint,
+        `iata` STRING,
+        `airport` STRING,
+        `city` STRING,
+        `state` STRING,
+        `country` STRING,
+        `lat` DOUBLE,
+        `long` DOUBLE,
+        created_ts timestamp,
+        last_update_ts timestamp)
+      USING delta
+target:
+  endpoint: "deltastore"
+  operation: "merge"
+  incremental: false
+  soft_delete: false
+  properties:
+    table: "d_airports"
+  primary_key_columns:
+  - "iata"
+  additional_columns:
+  - name: "airport_id"
+    framework_column: "w_sequence_key"
+  - name: "created_ts"
+    framework_column: "w_created_ts"
+  - name: "last_update_ts"
+    framework_column: "w_refresh_ts"

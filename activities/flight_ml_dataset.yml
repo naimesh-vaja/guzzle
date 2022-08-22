@@ -1,0 +1,74 @@
+version: 1
+job:
+  type: "processing"
+source:
+  endpoint: "deltastore"
+  properties:
+    sql: |-
+      select
+        nvl(origin.country,'x') <> nvl(dest.country,'x') is_international ,
+        DayOfWeek in (6,7) weekend,
+        <% for (item in [ "30", "60", "120"]) { %>
+        ArrDelay >  <%=item%>   arr_delay_<%= item %>min,
+        <% } %>
+        current_timestamp refresh_ts
+      from
+        f_flights f
+        left join d_airports origin on f.origin_aiport_id = origin.airport_id
+        left join d_airports dest on f.dest_aiport_id = dest.airport_id
+    pre_sql:
+    - |-
+      CREATE TABLE if not exists `default`.`flight_ml_dataset` (
+        `Month` STRING,
+        `DayofMonth` STRING,
+        `DayOfWeek` STRING,
+        `DepTime` STRING,
+        `CRSDepTime` STRING,
+        `ArrTime` INT,
+        `CRSArrTime` STRING,
+        `UniqueCarrier` STRING,
+        `FlightNum` STRING,
+        `TailNum` STRING,
+        `ActualElapsedTime` STRING,
+        `CRSElapsedTime` STRING,
+        `AirTime` STRING,
+        `ArrDelay` STRING,
+        `DepDelay` STRING,
+        `Origin` STRING,
+        `Dest` STRING,
+        `Distance` STRING,
+        `TaxiIn` STRING,
+        `TaxiOut` STRING,
+        `Cancelled` STRING,
+        `CancellationCode` STRING,
+        `Diverted` STRING,
+        `CarrierDelay` STRING,
+        `WeatherDelay` STRING,
+        `NASDelay` STRING,
+        `SecurityDelay` STRING,
+        `LateAircraftDelay` STRING,
+        `origin_aiport_id` BIGINT,
+        `origin_airport_name` STRING,
+        `origin_airport_city` STRING,
+        `origin_airports_state` STRING,
+        `dest_aiport_id` BIGINT,
+        `dest_airport_name` STRING,
+        `dest_airport_city` STRING,
+        `dest_airports_state` STRING,
+        `carrier_description` STRING,
+        `last_updated_ts` TIMESTAMP,
+        is_international boolean,
+        arr_delay_30min boolean,
+        arr_delay_60min boolean,
+        arr_delay_120min boolean,
+        refresh_ts timestamp, year string
+        )
+      USING delta
+       partitioned by (  `Year`)
+target:
+  endpoint: "deltastore"
+  operation: "overwrite"
+  incremental: false
+  soft_delete: false
+  properties:
+    table: "flight_ml_dataset"

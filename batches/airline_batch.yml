@@ -1,0 +1,13 @@
+version: 1
+context_stage_mappings:
+- context: {}
+  rerun_batch: true
+  stages:
+  - name: "SRI"
+    rerun_batch: true
+    job_groups:
+    - "arilinedemo_v3"
+  - name: "UCL"
+    rerun_batch: true
+    job_groups:
+    - "flight_ml"

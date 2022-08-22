@@ -1,0 +1,32 @@
+version: 1
+description: ""
+parallel: 2
+properties:
+  auto_dependency: true
+jobs:
+- sri_flights:
+    spark_properties:
+      driver_node_type_id: "Standard_DS3_v2"
+      node_type_id: "Standard_DS4_v2"
+      spark_version: "9.1.x-scala2.12"
+      workers:
+        num_workers: "2"
+- "d_airports"
+- "d_planes"
+- "d_carriers"
+- "f_flight"
+- sri_generic:
+    job_parameters:
+      src_file: "airports"
+      tgt_table: "sri_airports"
+- sri_generic:
+    job_parameters:
+      src_file: "plane-data"
+      tgt_table: "sri_planes"
+- sri_generic:
+    job_parameters:
+      src_file: "carriers"
+      tgt_table: "sri_carriers"
+- "recon_sri_vs_mart"
+- "dq_check_flights"
+- "flight_ml_dataset"

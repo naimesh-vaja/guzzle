@@ -1,0 +1,4 @@
+version: 1
+job:
+  type: "external"
+folder: "/archive"

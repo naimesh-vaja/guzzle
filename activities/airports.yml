@@ -1,0 +1,34 @@
+version: 1
+job:
+  type: "ingestion"
+  tags:
+  - "aa"
+source:
+  endpoint: "rest1"
+  properties:
+    format: "delimited"
+    charset: "UTF-8"
+    uri: "/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/HG7NV7/XTPZZY"
+    http_method: "get"
+    api_response_logical_endpoint: "blobguzzlecommon"
+    format_properties:
+      column_delimiter: ","
+      quote_delimiter: "\""
+      escape_char: "\\\\"
+      contains_header: true
+      infer_schema: true
+      clean_column_name: false
+      trim_white_space: "none"
+    retry_interval: 5
+    timeout: 300
+schema:
+  schema_derivation_strategy: "source"
+  strict_schema_check: true
+  discard: true
+target:
+  endpoint: "deltastore"
+  properties:
+    table: "stg_airports_316"
+    auto_create_table: true
+  operation: "overwrite"
+folder: "/archive"
