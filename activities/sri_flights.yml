@@ -3,7 +3,6 @@ job:
   type: "ingestion"
   tags:
   - "airlinedemo"
-  description: "sad asd "
 source:
   endpoint: "blobguzzlecommon"
   properties:
