@@ -6,7 +6,7 @@ job:
 source:
   endpoint: "blobguzzlecommon"
   properties:
-    source_file_pattern: "airlinesdemo/19*.bz2"
+    source_file_pattern: "19*.bz2"
     format: "delimited"
     charset: "UTF-8"
     partial_load: false
