@@ -1,6 +1,9 @@
 version: 1
 job:
   type: "recon"
+  tags:
+  - "asd"
+  description: "test 1"
 source:
   endpoint: "deltastore"
   properties:
