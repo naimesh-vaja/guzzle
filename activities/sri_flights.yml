@@ -3,6 +3,7 @@ job:
   type: "ingestion"
   tags:
   - "airlinedemo"
+  description: "des"
 source:
   endpoint: "blobguzzlecommon"
   properties:
