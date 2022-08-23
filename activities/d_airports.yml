@@ -21,9 +21,8 @@ source:
       USING delta
 target:
   endpoint: "deltastore"
-  operation: "merge"
+  operation: "effective_date_merge"
   incremental: false
-  soft_delete: false
   properties:
     table: "d_airports"
   primary_key_columns:
@@ -35,3 +34,5 @@ target:
     framework_column: "w_created_ts"
   - name: "last_update_ts"
     framework_column: "w_refresh_ts"
+  - framework_column: "w_current_record_flag"
+  - framework_column: "w_eff_start_date_ts"
